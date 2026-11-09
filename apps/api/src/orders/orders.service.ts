@@ -6,7 +6,8 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { calcUnitPrice } from './pricing';
+import { assertTransition } from './order-status';
+import { calcDiscount, calcUnitPrice } from './pricing';
 
 // Kèm tên món để hiển thị trên màn hình xác nhận và lịch sử đơn
 const ORDER_INCLUDE = {
@@ -79,9 +80,62 @@ export class OrdersService {
         });
       }
 
+      let discount = 0;
+      let promotionId: number | undefined;
+      if (dto.promoCode) {
+        const promotion = await tx.promotion.findUnique({
+          where: { code: dto.promoCode.trim().toUpperCase() },
+        });
+        if (
+          promotion === null ||
+          promotion.active === false ||
+          promotion.expiresAt < new Date()
+        ) {
+          throw new BadRequestException('Mã khuyến mãi không hợp lệ hoặc đã hết hạn');
+        }
+        discount = calcDiscount(subtotal, promotion.discountPercent);
+        promotionId = promotion.id;
+      }
+
       return tx.order.create({
-        data: { userId, subtotal, total: subtotal, items: { create: lines } },
+        data: {
+          userId,
+          subtotal,
+          discount,
+          total: subtotal - discount,
+          promotionId,
+          items: { create: lines },
+        },
         include: { items: true },
+      });
+    });
+  }
+
+  // Hủy đơn: chỉ khi máy trạng thái cho phép, và hoàn lại tồn kho.
+  // ponytail: đơn đã PAID bị hủy vẫn giữ điểm thưởng và chưa mô phỏng hoàn tiền
+  // (hoàn tiền nằm ngoài phạm vi MVP).
+  cancel(userId: number, id: number) {
+    return this.prisma.$transaction(async (tx) => {
+      const order = await tx.order.findUnique({
+        where: { id },
+        include: { items: true },
+      });
+      if (order === null || order.userId !== userId) {
+        throw new NotFoundException('Không tìm thấy đơn hàng');
+      }
+      assertTransition(order.status, 'CANCELLED');
+
+      for (const item of order.items) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: { stock: { increment: item.qty }, version: { increment: 1 } },
+        });
+      }
+
+      return tx.order.update({
+        where: { id },
+        data: { status: 'CANCELLED' },
+        include: ORDER_INCLUDE,
       });
     });
   }

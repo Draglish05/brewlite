@@ -31,6 +31,14 @@ export class AuthService {
     return { id: user.id, email: user.email };
   }
 
+  async getProfile(userId: number) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (user === null) {
+      throw new UnauthorizedException('Tài khoản không tồn tại');
+    }
+    return { userId: user.id, email: user.email, loyaltyPoints: user.loyaltyPoints };
+  }
+
   async login(dto: LoginDto) {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },

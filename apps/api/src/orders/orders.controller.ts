@@ -38,4 +38,12 @@ export class OrdersController {
   ) {
     return this.ordersService.findOne(req.user.userId, id);
   }
+
+  @Post(':id/cancel')
+  cancel(
+    @Req() req: { user: { userId: number } },
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.ordersService.cancel(req.user.userId, id);
+  }
 }

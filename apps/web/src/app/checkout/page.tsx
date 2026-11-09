@@ -16,6 +16,7 @@ export default function CheckoutPage() {
   const clear = useCart((state) => state.clear);
 
   const [method, setMethod] = useState<'WALLET' | 'CARD'>('WALLET');
+  const [promoCode, setPromoCode] = useState('');
   const [simulateFail, setSimulateFail] = useState(false);
   const [orderId, setOrderId] = useState<number | null>(null);
   const [error, setError] = useState('');
@@ -40,6 +41,7 @@ export default function CheckoutPage() {
               toppings: i.toppings,
               qty: i.qty,
             })),
+            promoCode: promoCode.trim() === '' ? undefined : promoCode.trim(),
           },
           { token },
         );
@@ -130,6 +132,18 @@ export default function CheckoutPage() {
           Thẻ ngân hàng
         </label>
       </fieldset>
+
+      <label className="mb-4 block">
+        <span className="mb-1 block font-semibold">Mã khuyến mãi (nếu có)</span>
+        <input
+          type="text"
+          placeholder="Ví dụ: BREW10"
+          value={promoCode}
+          onChange={(e) => setPromoCode(e.target.value)}
+          disabled={orderId !== null}
+          className="w-full rounded border p-2"
+        />
+      </label>
 
       <label className="mb-4 block text-sm">
         <input

@@ -40,24 +40,37 @@ model Product {
 }
 
 model User {
-  id            Int     @id @default(autoincrement())
-  email         String  @unique
-  passwordHash  String
-  loyaltyPoints Int     @default(0)
-  orders        Order[]
+  id                  Int                  @id @default(autoincrement())
+  email               String               @unique
+  passwordHash        String
+  loyaltyPoints       Int                  @default(0)
+  orders              Order[]
+  loyaltyTransactions LoyaltyTransaction[]
+}
+
+model Promotion {
+  id              Int      @id @default(autoincrement())
+  code            String   @unique
+  discountPercent Int
+  expiresAt       DateTime
+  active          Boolean  @default(true)
+  orders          Order[]
 }
 
 model Order {
-  id        Int         @id @default(autoincrement())
-  userId    Int
-  user      User        @relation(fields: [userId], references: [id])
-  status    OrderStatus @default(PENDING)
-  subtotal  Int
-  discount  Int         @default(0)
-  total     Int
-  createdAt DateTime    @default(now())
-  items     OrderItem[]
-  payments  Payment[]
+  id          Int                 @id @default(autoincrement())
+  userId      Int
+  user        User                @relation(fields: [userId], references: [id])
+  status      OrderStatus         @default(PENDING)
+  subtotal    Int
+  discount    Int                 @default(0)
+  total       Int
+  promotionId Int?
+  promotion   Promotion?          @relation(fields: [promotionId], references: [id])
+  createdAt   DateTime            @default(now())
+  items       OrderItem[]
+  payments    Payment[]
+  loyalty     LoyaltyTransaction?
 }
 
 model OrderItem {
@@ -81,4 +94,15 @@ model Payment {
   method         PaymentMethod
   status         PaymentStatus
   createdAt      DateTime      @default(now())
+}
+
+// orderId là duy nhất: mỗi đơn chỉ được cộng điểm một lần
+model LoyaltyTransaction {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  orderId   Int      @unique
+  order     Order    @relation(fields: [orderId], references: [id])
+  points    Int
+  createdAt DateTime @default(now())
 }

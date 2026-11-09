@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { getErrorMessage, getJson } from '@/lib/api';
+import { getErrorMessage, getJson, postJson } from '@/lib/api';
 import { STATUS_LABEL } from '@/lib/orders';
 import type { Order } from '@/lib/orders';
 import { useHydrated } from '@/lib/useHydrated';
@@ -31,6 +31,19 @@ export default function OrderConfirmationPage() {
       .catch(() => setError('Không kết nối được máy chủ'));
   }, [id, token]);
 
+  async function handleCancel() {
+    try {
+      const { ok, data } = await postJson(`/orders/${id}/cancel`, {}, { token });
+      if (ok) {
+        setOrder(data);
+      } else {
+        setError(getErrorMessage(data));
+      }
+    } catch {
+      setError('Không kết nối được máy chủ');
+    }
+  }
+
   if (hydrated === false) {
     return <p className="p-4 text-center">Đang tải...</p>;
   }
@@ -52,6 +65,8 @@ export default function OrderConfirmationPage() {
   }
 
   const paid = order.status === 'PAID';
+  // Khớp với máy trạng thái ở API: hủy được khi PENDING, PAYMENT_FAILED hoặc PAID
+  const canCancel = ['PENDING', 'PAYMENT_FAILED', 'PAID'].includes(order.status);
 
   return (
     <main className="mx-auto max-w-md p-4">
@@ -75,8 +90,19 @@ export default function OrderConfirmationPage() {
           </li>
         ))}
       </ul>
+      {order.discount > 0 && (
+        <p>
+          Tạm tính: {order.subtotal.toLocaleString('vi-VN')}đ, giảm giá: -
+          {order.discount.toLocaleString('vi-VN')}đ
+        </p>
+      )}
       <p className="mb-4 text-xl font-bold">Tổng: {order.total.toLocaleString('vi-VN')}đ</p>
 
+      {canCancel && (
+        <button onClick={handleCancel} className="mb-4 mr-4 rounded border px-4 py-2">
+          Hủy đơn
+        </button>
+      )}
       <Link href="/" className="underline">
         Về trang chủ
       </Link>
