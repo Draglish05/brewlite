@@ -12,12 +12,20 @@ export default function OrderHistoryPage() {
   const hydrated = useHydrated();
   const token = useAuth((state) => state.token);
   const [orders, setOrders] = useState<Order[] | null>(null);
+  const [points, setPoints] = useState<number | null>(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (token === '') {
       return;
     }
+    getJson('/auth/me', { token })
+      .then(({ ok, data }) => {
+        if (ok) {
+          setPoints(data.loyaltyPoints);
+        }
+      })
+      .catch(() => {});
     getJson('/orders/me', { token })
       .then(({ ok, data }) => {
         if (ok) {
@@ -61,7 +69,8 @@ export default function OrderHistoryPage() {
 
   return (
     <main className="mx-auto max-w-md p-4">
-      <h1 className="mb-4 text-2xl font-bold">Lịch sử đơn hàng</h1>
+      <h1 className="mb-1 text-2xl font-bold">Lịch sử đơn hàng</h1>
+      {points !== null && <p className="mb-4">Điểm tích lũy: {points}</p>}
       <ul>
         {orders.map((order) => (
           <li key={order.id} className="mb-2 rounded border p-3">

@@ -4,6 +4,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { assertTransition } from '../orders/order-status';
+import { calcPoints } from '../orders/pricing';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { MockPaymentGateway } from './mock-payment.gateway';
@@ -42,9 +44,15 @@ export class PaymentsService {
     if (order === null || order.userId !== userId) {
       throw new NotFoundException('Không tìm thấy đơn hàng');
     }
-    if (order.status !== 'PENDING' && order.status !== 'PAYMENT_FAILED') {
-      throw new ConflictException('Đơn hàng không thể thanh toán lúc này');
+
+    // Kiểm tra bằng máy trạng thái trước khi gọi cổng thanh toán.
+    // Đơn thanh toán lỗi được thử lại: PAYMENT_FAILED -> PENDING -> PAID.
+    let from = order.status;
+    if (from === 'PAYMENT_FAILED') {
+      assertTransition(from, 'PENDING');
+      from = 'PENDING';
     }
+    assertTransition(from, 'PAID');
 
     const success = await this.gateway.charge(order.total, dto.simulateFail === true);
 
@@ -63,6 +71,19 @@ export class PaymentsService {
           where: { id: order.id },
           data: { status: success ? 'PAID' : 'PAYMENT_FAILED' },
         });
+
+        // Cộng điểm thưởng khi đơn PAID. orderId của LoyaltyTransaction là duy nhất
+        // nên một đơn không thể được cộng điểm hai lần.
+        const points = calcPoints(order.total);
+        if (success && points > 0) {
+          await tx.loyaltyTransaction.create({
+            data: { userId, orderId: order.id, points },
+          });
+          await tx.user.update({
+            where: { id: userId },
+            data: { loyaltyPoints: { increment: points } },
+          });
+        }
         return created;
       });
       return this.toResult(payment);

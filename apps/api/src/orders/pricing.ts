@@ -13,3 +13,13 @@ export function calcUnitPrice(basePrice: number, size: string, toppings: string[
   }
   return price;
 }
+
+// Giảm theo phần trăm, làm tròn xuống đến đồng
+export function calcDiscount(subtotal: number, discountPercent: number) {
+  return Math.floor((subtotal * discountPercent) / 100);
+}
+
+// 1 điểm cho mỗi 10.000đ (làm tròn xuống)
+export function calcPoints(total: number) {
+  return Math.floor(total / 10000);
+}

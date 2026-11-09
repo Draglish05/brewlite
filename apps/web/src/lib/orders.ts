@@ -10,6 +10,8 @@ export type OrderItem = {
 export type Order = {
   id: number;
   status: string;
+  subtotal: number;
+  discount: number;
   total: number;
   createdAt: string;
   items: OrderItem[];
