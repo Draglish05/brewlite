@@ -15,6 +15,9 @@ export default function AuthLink() {
 
   return (
     <span>
+      <Link href="/orders" className="mr-3">
+        Đơn hàng
+      </Link>
       {email}{' '}
       <button onClick={logout} className="underline">
         Đăng xuất

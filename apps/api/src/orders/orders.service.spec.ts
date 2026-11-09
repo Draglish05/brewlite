@@ -1,4 +1,8 @@
-import { BadRequestException, ConflictException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { PrismaService } from '../prisma/prisma.service';
 import { OrdersService } from './orders.service';
@@ -12,6 +16,7 @@ describe('OrdersService', () => {
     order: { create: jest.fn() },
   };
   const prisma = {
+    order: { findMany: jest.fn(), findUnique: jest.fn() },
     $transaction: (fn: (t: typeof tx) => unknown) => fn(tx),
   };
 
@@ -59,5 +64,28 @@ describe('OrdersService', () => {
         items: [{ productId: 999, size: 'S', toppings: [], qty: 1 }],
       }),
     ).rejects.toThrow(BadRequestException);
+  });
+
+  it('findMine chỉ lấy đơn của người dùng, mới nhất trước', async () => {
+    prisma.order.findMany.mockResolvedValue([{ id: 2 }, { id: 1 }]);
+
+    const orders = await service.findMine(3);
+
+    expect(orders).toHaveLength(2);
+    const query = prisma.order.findMany.mock.calls[0][0];
+    expect(query.where).toEqual({ userId: 3 });
+    expect(query.orderBy).toEqual({ createdAt: 'desc' });
+  });
+
+  it('findOne trả về đơn của chính người dùng', async () => {
+    prisma.order.findUnique.mockResolvedValue({ id: 5, userId: 3 });
+
+    expect(await service.findOne(3, 5)).toEqual({ id: 5, userId: 3 });
+  });
+
+  it('findOne báo 404 khi xem đơn của người khác', async () => {
+    prisma.order.findUnique.mockResolvedValue({ id: 5, userId: 99 });
+
+    await expect(service.findOne(3, 5)).rejects.toThrow(NotFoundException);
   });
 });

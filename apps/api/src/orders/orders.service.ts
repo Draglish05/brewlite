@@ -2,14 +2,39 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { calcUnitPrice } from './pricing';
 
+// Kèm tên món để hiển thị trên màn hình xác nhận và lịch sử đơn
+const ORDER_INCLUDE = {
+  items: { include: { product: { select: { name: true } } } },
+};
+
 @Injectable()
 export class OrdersService {
   constructor(private readonly prisma: PrismaService) {}
+
+  findMine(userId: number) {
+    return this.prisma.order.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      include: ORDER_INCLUDE,
+    });
+  }
+
+  async findOne(userId: number, id: number) {
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+      include: ORDER_INCLUDE,
+    });
+    if (order === null || order.userId !== userId) {
+      throw new NotFoundException('Không tìm thấy đơn hàng');
+    }
+    return order;
+  }
 
   create(userId: number, dto: CreateOrderDto) {
     // Mọi thứ trong transaction: một bước lỗi thì tất cả được hoàn tác,

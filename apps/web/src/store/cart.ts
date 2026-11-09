@@ -16,6 +16,7 @@ type CartState = {
   addItem: (item: Omit<CartItem, 'key' | 'qty'>) => void;
   setQty: (key: string, qty: number) => void;
   removeItem: (key: string) => void;
+  clear: () => void;
 };
 
 export const useCart = create<CartState>()(
@@ -45,6 +46,8 @@ export const useCart = create<CartState>()(
 
       removeItem: (key) =>
         set((state) => ({ items: state.items.filter((i) => i.key !== key) })),
+
+      clear: () => set({ items: [] }),
     }),
     { name: 'brewlite-cart' },
   ),

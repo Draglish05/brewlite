@@ -65,6 +65,12 @@ export default function CartPage() {
         ))}
       </ul>
       <p className="mt-4 text-xl font-bold">Tổng: {total.toLocaleString('vi-VN')}đ</p>
+      <Link
+        href="/checkout"
+        className="mt-4 inline-block rounded bg-black px-4 py-2 text-white"
+      >
+        Thanh toán
+      </Link>
     </main>
   );
 }
