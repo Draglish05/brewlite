@@ -4,6 +4,7 @@ on:
   pull_request:
   push:
     branches: [main]
+  workflow_call: # để pipeline CD dùng lại làm bước kiểm tra chất lượng
 
 jobs:
   api:

@@ -1,0 +1,51 @@
+name: CD
+
+# Đẩy tag phiên bản (ví dụ v1.0.0) thì chạy:
+# kiểm tra chất lượng, build image, đẩy lên registry, triển khai, smoke test.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  quality:
+    uses: ./.github/workflows/ci.yml
+
+  image:
+    needs: quality
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.meta.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tính tên và tag của image
+        id: meta
+        run: |
+          echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/brewlite-api" >> "$GITHUB_OUTPUT"
+          echo "tag=${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Image gắn hai tag: commit SHA (để rollback chính xác) và tên phiên bản (v1.0.0)
+      - uses: docker/build-push-action@v6
+        with:
+          context: apps/api
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.tag }}
+            ${{ steps.meta.outputs.image }}:${{ github.ref_name }}
+
+  deploy:
+    needs: image
+    uses: ./.github/workflows/deploy.yml
+    with:
+      image_tag: ${{ needs.image.outputs.tag }}
+    secrets: inherit

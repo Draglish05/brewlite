@@ -1,0 +1,19 @@
+name: Rollback
+
+# Chạy tay trên GitHub (tab Actions, chọn Rollback, Run workflow):
+# đưa API về một phiên bản cũ đã có trên registry, rồi chạy smoke test.
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: Tag image API cần quay về (commit SHA 12 ký tự hoặc phiên bản, ví dụ v1.0.0)
+        required: true
+        type: string
+
+jobs:
+  rollback:
+    uses: ./.github/workflows/deploy.yml
+    with:
+      image_tag: ${{ inputs.image_tag }}
+      deploy_web: false # web quay về bằng "Instant Rollback" trên Vercel (xem docs/deployment.md)
+    secrets: inherit
