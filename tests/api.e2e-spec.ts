@@ -1,8 +1,8 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
-import { AppModule } from '../src/app.module';
-import { PrismaService } from '../src/prisma/prisma.service';
+import { AppModule } from '../apps/api/src/app.module';
+import { PrismaService } from '../apps/api/src/prisma/prisma.service';
 
 // Các test này chạy trên database thật (brewlite_test), không dùng mock.
 describe('API (tích hợp, database thật)', () => {
