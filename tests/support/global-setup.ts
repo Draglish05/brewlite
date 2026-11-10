@@ -1,7 +1,9 @@
 import { execSync } from 'child_process';
 import { resolve } from 'path';
-import { Client } from 'pg';
+import { apiRequire } from './api-require';
 import { getAdminDatabaseUrl, getTestDatabaseUrl, TEST_DB_NAME } from './test-db';
+
+const { Client } = apiRequire('pg') as typeof import('pg');
 
 // Chạy một lần trước toàn bộ test: tạo database test (nếu chưa có),
 // áp dụng migration và nạp dữ liệu mẫu.
@@ -17,7 +19,7 @@ export default async function globalSetup() {
   await admin.end();
 
   const options = {
-    cwd: resolve(__dirname, '..'),
+    cwd: resolve(__dirname, '../../apps/api'),
     env: { ...process.env, DATABASE_URL: getTestDatabaseUrl() },
     stdio: 'ignore' as const,
   };

@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# file hướng dẫn cho công cụ AI do `next dev` tự sinh, không đưa vào repo
+AGENTS.md

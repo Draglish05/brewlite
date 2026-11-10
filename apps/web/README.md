@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BrewLite Web (Next.js)
 
-## Getting Started
+Giao diện của BrewLite, thiết kế cho điện thoại (mobile-first).
 
-First, run the development server:
+## Thư mục
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+src/
+  app/          các trang, mỗi thư mục là một địa chỉ web
+    page.tsx            /          menu
+    products/[id]/      /products/3   chi tiết, chọn size và topping
+    cart/               /cart         giỏ hàng
+    checkout/           /checkout     thanh toán
+    orders/             /orders       lịch sử đơn, /orders/[id] xác nhận đơn
+    login/, register/   đăng nhập, đăng ký
+    layout.tsx, loading.tsx, error.tsx, manifest.ts   khung chung, chờ tải, báo lỗi, PWA
+  components/   thành phần dùng lại (AuthLink, CartLink, ProductOptions)
+  lib/          hàm gọi API, bảng phụ thu, kiểu dữ liệu
+  store/        trạng thái dùng chung (giỏ hàng, đăng nhập) bằng Zustand
+public/         ảnh tĩnh, biểu tượng PWA
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Các file cấu hình ở thư mục này
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Nhóm | File |
+|---|---|
+| Chạy và build | `package.json`, `next.config.ts`, `tsconfig.json`, `Dockerfile`, `.dockerignore` |
+| Chất lượng code | `eslint.config.mjs` |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Biến môi trường (`.env.local`)
 
-## Learn More
+- `API_URL`: địa chỉ API mà server của Next.js gọi tới.
+- `NEXT_PUBLIC_API_URL`: địa chỉ API mà trình duyệt gọi tới.
 
-To learn more about Next.js, take a look at the following resources:
+## Lệnh thường dùng
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+npm run dev     chạy web (cổng 3000)
+npm run lint    kiểm tra code
+npm run build   build bản chạy thật
+```

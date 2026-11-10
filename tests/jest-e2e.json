@@ -1,0 +1,14 @@
+{
+  "rootDir": "../apps/api",
+  "roots": ["<rootDir>/../../tests"],
+  "testRegex": "\\.e2e-spec\\.ts$",
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "modulePaths": ["<rootDir>/node_modules"],
+  "testEnvironment": "node",
+  "transform": {
+    "^.+\\.(t|j)s$": ["ts-jest", { "tsconfig": "<rootDir>/../../tests/tsconfig.json" }]
+  },
+  "globalSetup": "<rootDir>/../../tests/support/global-setup.ts",
+  "setupFiles": ["<rootDir>/../../tests/support/setup-env.ts"],
+  "testTimeout": 30000
+}

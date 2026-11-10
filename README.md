@@ -74,7 +74,23 @@ npm run build
 
 ## Cấu trúc thư mục
 
-- `apps/api`: backend NestJS
-- `apps/web`: frontend Next.js
-- `docs`: tài liệu yêu cầu, kiến trúc
-- `.github/workflows`: CI
+Repository chia làm 4 phần rõ ràng. Mỗi thư mục có README riêng giải thích bên trong.
+
+```
+brewlite/
+├─ apps/                  CODE
+│  ├─ api/                backend NestJS (cổng 4000)
+│  └─ web/                frontend Next.js (cổng 3000)
+├─ tests/                 TEST tích hợp và end-to-end (gọi API thật)
+├─ docs/                  TÀI LIỆU: yêu cầu, sơ đồ, kiến trúc, triển khai
+└─ cấu hình chung
+   ├─ .github/workflows/  CI/CD (kiểm tra, build, triển khai, rollback)
+   ├─ docker-compose.yml  chạy web, API, database bằng Docker
+   ├─ .env.example        mẫu biến môi trường
+   └─ README.md
+```
+
+- `apps/api`: xem [apps/api/README.md](apps/api/README.md)
+- `apps/web`: xem [apps/web/README.md](apps/web/README.md)
+- `tests`: xem [tests/README.md](tests/README.md)
+- `docs`: xem [docs/README.md](docs/README.md)
