@@ -4,7 +4,7 @@ Liên kết mỗi yêu cầu (`docs/requirements/srs.md`) với use-case, sơ đ
 
 Quy ước test:
 - **UT** là unit test trong `apps/api/src`, chạy bằng `npm test`.
-- **INT** là test tích hợp trên database thật trong `apps/api/test/api.e2e-spec.ts`, chạy bằng `npm run test:e2e`.
+- **INT** là test tích hợp trên database thật trong `tests/api.e2e-spec.ts`, chạy bằng `npm run test:e2e`.
 - **Thủ công** là kiểm tra bằng tay trên giao diện (chưa có test tự động cho web).
 
 ## Yêu cầu chức năng
@@ -48,8 +48,8 @@ Quy ước test:
 | NFR-10 Chạy bằng Docker | ADR-006, `deployment` | `docker-compose.yml`, `apps/api/Dockerfile`, `apps/web/Dockerfile` | Chạy `docker compose up --build`, kiểm tra thủ công |
 | NFR-11 Health check | `architecture.md`, `deployment` | `apps/api/src/health/` | UT `health.controller.spec.ts`; INT `GET /health` |
 | NFR-12 Production, CI/CD | ADR-006, `deployment` | `.github/workflows/ci.yml`, `cd.yml`, `deploy.yml`, `rollback.yml` | CI xanh trên mọi pull request; CD chạy khi đẩy tag (ghi trong `deployment.md`) |
-| NFR-13 Kiểm thử tự động | `architecture.md` | `apps/api/src/**/*.spec.ts`, `apps/api/test/api.e2e-spec.ts` | `npm test`, `npm run test:e2e` |
-| NFR-14 Tài liệu hướng dẫn | | `README.md`, `docs/deployment.md`, `CONTRIBUTING.md` | Người ngoài làm theo được |
+| NFR-13 Kiểm thử tự động | `architecture.md` | `apps/api/src/**/*.spec.ts`, `tests/api.e2e-spec.ts` | `npm test`, `npm run test:e2e` |
+| NFR-14 Tài liệu hướng dẫn | | `README.md`, `docs/deployment.md`, `docs/contributing.md` | Người ngoài làm theo được |
 
 ## Khoảng trống đã biết
 
