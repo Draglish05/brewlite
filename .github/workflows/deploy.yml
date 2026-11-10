@@ -1,0 +1,74 @@
+name: Deploy
+
+# Workflow dùng chung (được cd.yml và rollback.yml gọi): triển khai một phiên bản
+# của API và web lên production, rồi chạy smoke test.
+on:
+  workflow_call:
+    inputs:
+      image_tag:
+        description: Tag image API trên GHCR cần triển khai (commit SHA hoặc phiên bản)
+        required: true
+        type: string
+      deploy_web:
+        description: Có triển khai web lên Vercel không
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      API_URL: ${{ vars.API_URL }}
+      WEB_URL: ${{ vars.WEB_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tính tên image (GHCR yêu cầu chữ thường)
+        run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/brewlite-api" >> "$GITHUB_ENV"
+
+      # Render kéo image từ GHCR. Khi khởi động, API tự chạy `prisma migrate deploy`
+      # (chỉ áp dụng migration còn thiếu, không xóa dữ liệu) rồi mới nhận request.
+      - name: Triển khai API lên Render
+        run: |
+          IMG_URL=$(jq -rn --arg u "$IMAGE:${{ inputs.image_tag }}" '$u|@uri')
+          curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}&imgURL=${IMG_URL}"
+
+      - name: Smoke test API (GET /health)
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS "$API_URL/health" | grep -q '"status":"ok"'; then
+              echo "API khoẻ sau lần thử $i"
+              exit 0
+            fi
+            echo "Chờ API... ($i/30)"
+            sleep 10
+          done
+          echo "::error::API không phản hồi /health sau khi triển khai. Rollback: chạy workflow Rollback với image_tag của phiên bản trước."
+          exit 1
+
+      - name: Triển khai web lên Vercel
+        if: ${{ inputs.deploy_web }}
+        working-directory: apps/web
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          npx vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+          npx vercel build --prod --token="$VERCEL_TOKEN"
+          npx vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+
+      - name: Smoke test web (trang chủ có menu)
+        if: ${{ inputs.deploy_web }}
+        run: |
+          for i in $(seq 1 12); do
+            if curl -fsS "$WEB_URL" | grep -q "BrewLite"; then
+              echo "Web phản hồi sau lần thử $i"
+              exit 0
+            fi
+            echo "Chờ web... ($i/12)"
+            sleep 10
+          done
+          echo "::error::Web không phản hồi sau khi triển khai."
+          exit 1
