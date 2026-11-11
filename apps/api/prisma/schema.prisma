@@ -9,6 +9,7 @@ datasource db {
   provider = "postgresql"
 }
 
+//  trạng thái của đơn hàng
 enum OrderStatus {
   PENDING
   PAID
@@ -18,7 +19,7 @@ enum OrderStatus {
   PAYMENT_FAILED
   CANCELLED
 }
-
+// phương thức thanh toán
 enum PaymentMethod {
   WALLET
   CARD
@@ -30,7 +31,7 @@ enum PaymentStatus {
 }
 
 model Product {
-  id         Int         @id @default(autoincrement())
+  id         Int         @id @default(autoincrement()) // tạo khoá chính
   name       String
   price      Int
   imageUrl   String
@@ -41,7 +42,7 @@ model Product {
 
 model User {
   id                  Int                  @id @default(autoincrement())
-  email               String               @unique
+  email               String               @unique // không được có 2 dòng trùng giá trị ở cột 
   passwordHash        String
   loyaltyPoints       Int                  @default(0)
   orders              Order[]
@@ -60,13 +61,13 @@ model Promotion {
 model Order {
   id          Int                 @id @default(autoincrement())
   userId      Int
-  user        User                @relation(fields: [userId], references: [id])
+  user        User                @relation(fields: [userId], references: [id]) // khoá ngoại
   status      OrderStatus         @default(PENDING)
   subtotal    Int
   discount    Int                 @default(0)
   total       Int
   promotionId Int?
-  promotion   Promotion?          @relation(fields: [promotionId], references: [id])
+  promotion   Promotion?          @relation(fields: [promotionId], references: [id]) 
   createdAt   DateTime            @default(now())
   items       OrderItem[]
   payments    Payment[]
