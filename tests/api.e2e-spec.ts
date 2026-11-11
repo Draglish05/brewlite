@@ -92,26 +92,26 @@ describe('API (tích hợp, database thật)', () => {
       // 1. Xem menu và chi tiết sản phẩm
       const menu = await request(server).get('/products').expect(200);
       expect(menu.body.length).toBeGreaterThanOrEqual(6);
-      const cappuccino = await productByName('Cappuccino');
-      await request(server).get(`/products/${cappuccino.id}`).expect(200);
+      const latte = await productByName('Ice latte');
+      await request(server).get(`/products/${latte.id}`).expect(200);
       await request(server).get('/products/999999').expect(404);
 
       // 2. Đăng ký, đăng nhập, đặt đơn có mã BREW10
       const { token } = await newUser();
-      const created = await createOrder(token, cappuccino.id, 2, {
+      const created = await createOrder(token, latte.id, 2, {
         size: 'L',
         toppings: ['Kem'],
         promoCode: 'BREW10',
       }).expect(201);
       expect(created.body.status).toBe('PENDING');
-      expect(created.body.subtotal).toBe(120000); // (45000 + 10000 + 5000) x 2
-      expect(created.body.discount).toBe(12000);
-      expect(created.body.total).toBe(108000);
+      expect(created.body.subtotal).toBe(110000); // (40000 + 10000 + 5000) x 2
+      expect(created.body.discount).toBe(11000);
+      expect(created.body.total).toBe(99000);
 
       // 3. Thanh toán
       const paid = await pay(token, created.body.id, key('flow')).expect(200);
       expect(paid.body.status).toBe('PAID');
-      expect(paid.body.amount).toBe(108000);
+      expect(paid.body.amount).toBe(99000);
 
       // 4. Màn hình xác nhận và lịch sử đơn
       const confirmation = await request(server)
@@ -119,7 +119,7 @@ describe('API (tích hợp, database thật)', () => {
         .set('Authorization', `Bearer ${token}`)
         .expect(200);
       expect(confirmation.body.status).toBe('PAID');
-      expect(confirmation.body.items[0].product.name).toBe('Cappuccino');
+      expect(confirmation.body.items[0].product.name).toBe('Ice latte');
 
       const history = await request(server)
         .get('/orders/me')
@@ -127,14 +127,14 @@ describe('API (tích hợp, database thật)', () => {
         .expect(200);
       expect(history.body.map((o: { id: number }) => o.id)).toContain(created.body.id);
 
-      // 5. Tồn kho đã trừ, điểm thưởng đã cộng (108.000đ được 10 điểm)
-      const after = await productByName('Cappuccino');
+      // 5. Tồn kho đã trừ, điểm thưởng đã cộng (99.000đ được 9 điểm)
+      const after = await productByName('Ice latte');
       expect(after.stock).toBe(48);
       const me = await request(server)
         .get('/auth/me')
         .set('Authorization', `Bearer ${token}`)
         .expect(200);
-      expect(me.body.loyaltyPoints).toBe(10);
+      expect(me.body.loyaltyPoints).toBe(9);
     });
 
     it('chặn đặt đơn khi chưa đăng nhập và khi dữ liệu sai', async () => {
@@ -218,7 +218,7 @@ describe('API (tích hợp, database thật)', () => {
     it('gửi hai lần tuần tự cùng key thì chỉ có một Payment và điểm chỉ cộng một lần', async () => {
       const product = await productByName('Bạc xỉu');
       const { token, email } = await newUser();
-      const order = await createOrder(token, product.id, 3).expect(201); // 114.000đ
+      const order = await createOrder(token, product.id, 3).expect(201); // 60.000đ
 
       const first = await pay(token, order.body.id, key('idem')).expect(200);
       const second = await pay(token, order.body.id, key('idem')).expect(200);
@@ -229,11 +229,11 @@ describe('API (tích hợp, database thật)', () => {
       });
       expect(payments).toBe(1);
       const user = await prisma.user.findUniqueOrThrow({ where: { email } });
-      expect(user.loyaltyPoints).toBe(11); // 114.000đ -> 11 điểm, đúng một lần
+      expect(user.loyaltyPoints).toBe(6); // 60.000đ -> 6 điểm, đúng một lần
     });
 
     it('gửi 5 yêu cầu cùng key đồng thời vẫn chỉ có một Payment', async () => {
-      const product = await productByName('Trà vải');
+      const product = await productByName('Trà kiwi');
       const { token } = await newUser();
       const order = await createOrder(token, product.id).expect(201);
 
