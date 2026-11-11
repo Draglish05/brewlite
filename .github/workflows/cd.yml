@@ -49,3 +49,19 @@ jobs:
     with:
       image_tag: ${{ needs.image.outputs.tag }}
     secrets: inherit
+
+  # Chỉ tạo bản phát hành (release) sau khi triển khai và smoke test thành công
+  release:
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tạo GitHub Release kèm release notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --title "BrewLite ${{ github.ref_name }}" \
+            --notes-file docs/release-notes.md
