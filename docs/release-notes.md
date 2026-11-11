@@ -1,8 +1,8 @@
-# BrewLite v1.0.1
+# BrewLite: ghi chú phát hành
 
-Phiên bản đầu tiên hoàn chỉnh của BrewLite: ứng dụng đặt đồ uống không dùng tiền mặt, từ chọn món đến thanh toán và theo dõi đơn.
+Phiên bản hoàn chỉnh đầu tiên của BrewLite: ứng dụng đặt đồ uống không dùng tiền mặt, từ chọn món đến thanh toán và theo dõi đơn.
 
-Lịch sử phát hành: `v1.0.0` là lần chạy pipeline CD đầu tiên, bước triển khai web lên Vercel bị lỗi cấu hình nên không tạo bản phát hành. `v1.0.1` sửa bước đó (để Vercel tự build bằng biến môi trường của dự án) và là bản phát hành đầu tiên triển khai thành công cả API lẫn web.
+Lịch sử phát hành: các thẻ `v1.0.0` và `v1.0.1` là những lần chạy pipeline CD đầu tiên, bước triển khai web lên Vercel bị lỗi cấu hình (biến môi trường Sensitive không kéo về CI được, và cặp ID dự án không khớp token) nên không tạo bản phát hành. Pipeline được sửa để gọi Deploy Hook của Vercel, và bản phát hành đầu tiên triển khai thành công cả API lẫn web là bản được ghi ở tiêu đề của release này.
 
 ## Địa chỉ
 

@@ -33,9 +33,7 @@ Không có bí mật nào nằm trong repository hay log CI. Giá trị thật c
 | Loại | Tên | Ý nghĩa |
 |---|---|---|
 | Secret | `RENDER_DEPLOY_HOOK_URL` | Deploy hook của dịch vụ API trên Render |
-| Secret | `VERCEL_TOKEN` | Token tạo ở Vercel (Account Settings, Tokens) |
-| Secret | `VERCEL_ORG_ID` | Lấy từ file `.vercel/project.json` sau khi chạy `npx vercel link` |
-| Secret | `VERCEL_PROJECT_ID` | Lấy từ file `.vercel/project.json` |
+| Secret | `VERCEL_DEPLOY_HOOK_URL` | Deploy hook của dự án web trên Vercel (Settings, Git, Deploy Hooks) |
 | Variable | `API_URL` | URL API production (dùng cho smoke test) |
 | Variable | `WEB_URL` | URL web production (dùng cho smoke test) |
 
@@ -44,8 +42,9 @@ Không có bí mật nào nằm trong repository hay log CI. Giá trị thật c
 1. **Database:** trên Render, New, PostgreSQL, chọn gói Free. Giữ database **không công khai**: chỉ dùng Internal Database URL cho API.
 2. **API:** trên Render, New, Web Service, chọn "Existing image" và nhập `ghcr.io/<chủ-repo-viết-thường>/brewlite-api:latest`. Đặt các biến ở bảng trên. Health check path: `/health`. Sau lần đẩy image đầu tiên, vào GitHub, Packages, `brewlite-api`, đổi **visibility thành Public** để Render kéo được image.
 3. **Deploy hook:** Render, dịch vụ API, Settings, Deploy Hook. Sao chép vào secret `RENDER_DEPLOY_HOOK_URL`.
-4. **Web:** trên Vercel, Add New Project, chọn repository, đặt **Root Directory** là `apps/web`, thêm hai biến `API_URL` và `NEXT_PUBLIC_API_URL`. Tắt tính năng tự deploy từ Git nếu muốn chỉ deploy qua pipeline.
-5. Tạo token Vercel và đặt các secret, variable ở bảng trên.
+4. **Web:** trên Vercel, Add New Project, chọn repository, đặt **Root Directory** là `apps/web`, thêm hai biến `API_URL` và `NEXT_PUBLIC_API_URL`.
+5. **Deploy hook của web:** trên Vercel, dự án, Settings, Git, Deploy Hooks, tạo hook cho nhánh `main` và sao chép đường dẫn vào secret `VERCEL_DEPLOY_HOOK_URL`. Lý do dùng deploy hook thay cho `vercel deploy` bằng token: các biến môi trường của dự án có thể ở chế độ Sensitive nên không kéo về CI được, còn deploy hook để Vercel tự build trên máy chủ của họ bằng chính các biến đó.
+6. Đặt các secret và variable còn lại ở bảng trên.
 
 ## 3. Quy trình phát hành
 
