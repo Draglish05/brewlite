@@ -47,16 +47,12 @@ jobs:
           echo "::error::API không phản hồi /health sau khi triển khai. Rollback: chạy workflow Rollback với image_tag của phiên bản trước."
           exit 1
 
+      # Deploy Hook của Vercel: Vercel tự build nhánh main trên máy chủ của họ bằng các
+      # biến môi trường đã đặt trong dự án (kể cả biến Sensitive). Chỉ cần một đường dẫn
+      # bí mật, không cần token hay ID tổ chức.
       - name: Triển khai web lên Vercel
         if: ${{ inputs.deploy_web }}
-        # Chạy ở thư mục gốc repo vì dự án Vercel đã đặt Root Directory là apps/web.
-        # Vercel tự build trên máy chủ của họ bằng các biến môi trường đã đặt trong dự án
-        # (kể cả biến Sensitive, vốn không thể kéo về CI bằng `vercel pull`).
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: npx vercel deploy --prod --yes --token="$VERCEL_TOKEN"
+        run: curl -fsS -X POST "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}"
 
       - name: Smoke test web (trang chủ có menu)
         if: ${{ inputs.deploy_web }}
