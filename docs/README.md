@@ -8,6 +8,8 @@
 | `deployment.md` | Triển khai production, biến môi trường, quy trình phát hành, rollback | Task 5 |
 | `traceability-matrix.md` | Ma trận truy vết yêu cầu, thiết kế, code, test | Task 5 |
 | `contributing.md` | Quy ước nhánh, commit và Definition of Done | Task 4 |
+| `release-notes.md` | Ghi chú phát hành (nội dung GitHub Release) | Task 5 |
+| `sprint-review-retrospective.md` | Sprint Review, burndown, Retrospective, backlog phiên bản sau | Task 5, Assignment 1 |
 
 ## Sơ đồ trong `diagrams/`
 
