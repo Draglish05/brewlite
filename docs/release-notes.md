@@ -1,6 +1,8 @@
-# BrewLite v1.0.0
+# BrewLite v1.0.1
 
 Phiên bản đầu tiên hoàn chỉnh của BrewLite: ứng dụng đặt đồ uống không dùng tiền mặt, từ chọn món đến thanh toán và theo dõi đơn.
+
+Lịch sử phát hành: `v1.0.0` là lần chạy pipeline CD đầu tiên, bước triển khai web lên Vercel bị lỗi cấu hình nên không tạo bản phát hành. `v1.0.1` sửa bước đó (để Vercel tự build bằng biến môi trường của dự án) và là bản phát hành đầu tiên triển khai thành công cả API lẫn web.
 
 ## Địa chỉ
 
