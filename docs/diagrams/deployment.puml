@@ -1,0 +1,92 @@
+@startuml deployment
+title Deployment diagram: các môi trường BrewLite (local, CI, production)
+
+node "Thiết bị người dùng" as Device {
+  artifact "Trình duyệt / PWA" as Browser
+}
+
+package "Local (máy lập trình)" {
+  node "Docker Compose" as Local {
+    artifact "web" as LWeb
+    artifact "api" as LApi
+    database "postgres" as LDb
+  }
+}
+
+package "CI/CD (GitHub)" {
+  node "GitHub Repository\n(nhánh, pull request, thẻ v*)" as Repo
+  node "GitHub Actions" as CI {
+    artifact "Lint, Test, Build" as Quality
+    artifact "Build Docker image" as BuildImage
+    artifact "Deploy và Smoke test" as DeployStep
+  }
+  node "GitHub Container Registry\n(ghcr.io)" as GHCR {
+    artifact "brewlite-api:<commit SHA>" as Image
+  }
+}
+
+package "Production" {
+  node "Vercel (CDN + Next.js)" as Vercel {
+    artifact "apps/web" as Web
+  }
+  node "Render" as Render {
+    node "Web Service (Docker)" as ApiHost {
+      artifact "apps/api (NestJS)" as Api
+      artifact "Mock Payment Gateway\n(mock-payment.gateway.ts)" as Gateway
+      artifact "GET /health\n(kiểm tra cả kết nối database)" as Health
+    }
+    node "PostgreSQL (private)" as PgHost {
+      database "brewlite-db\n(persistent disk)" as Db
+    }
+  }
+}
+
+Local --> Repo : git push,\npull request
+Repo --> CI : pull request, push main: chạy CI\nthẻ v*: chạy CD
+Quality --> BuildImage : đạt mới chạy tiếp
+BuildImage --> DeployStep : đạt mới chạy tiếp
+
+Browser --> Web : HTTPS 443
+Browser --> Api : HTTPS 443\nREST/JSON
+Web --> Api : HTTPS 443\n(Next.js server gọi /products)
+Api --> Gateway : gọi trong cùng tiến trình
+Api --> Db : TCP 5432\n(mạng nội bộ Render)
+
+CI --> GHCR : push image\n(GITHUB_TOKEN)
+GHCR --> ApiHost : pull image
+DeployStep --> ApiHost : deploy hook\n(secret CI)
+DeployStep --> Vercel : deploy hook\n(secret CI)
+DeployStep ..> Health : smoke test API
+DeployStep ..> Web : smoke test web
+
+note right of Api
+  Biến môi trường (secret):
+  DATABASE_URL, JWT_SECRET, WEB_URL (cho CORS)
+  Khi khởi động: prisma migrate deploy,
+  rồi prisma db seed, rồi mới nhận request.
+  Log ghi ra stdout, xem trên Render
+end note
+
+note right of Gateway
+  Chính là lifeline "Payment Service"
+  trong sequence diagram: cổng thanh toán
+  mô phỏng, nằm trong tiến trình API.
+end note
+
+note right of Web
+  Biến môi trường:
+  NEXT_PUBLIC_API_URL (trình duyệt gọi API),
+  API_URL (server Next.js gọi API)
+end note
+
+note bottom of DeployStep
+  Smoke test lỗi: pipeline dừng, không tạo Release.
+  Rollback: chạy workflow Rollback với tag image cũ
+  (web: Instant Rollback trên Vercel).
+end note
+
+note bottom of Db
+  Không public ra Internet.
+  Chỉ API kết nối tới được.
+end note
+@enduml

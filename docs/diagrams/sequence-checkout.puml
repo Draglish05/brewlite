@@ -1,0 +1,80 @@
+@startuml sequence-checkout
+title Sequence diagram: UC-01 Đặt và thanh toán đơn hàng
+
+actor "Customer" as C
+participant "Next.js UI" as UI
+participant "NestJS API" as API
+database "Database" as DB
+participant "Payment Service" as PAY
+
+C -> UI : Bấm "Thanh toán"
+UI -> API : POST /orders (Bearer JWT, giỏ hàng, mã khuyến mãi)
+
+API -> API : Kiểm tra JWT
+alt Token sai hoặc hết hạn
+  API --> UI : 401 Unauthorized
+  UI --> C : Chuyển tới trang đăng nhập
+else Token hợp lệ
+  API -> API : Validate dữ liệu đầu vào
+  alt Dữ liệu không hợp lệ
+    API --> UI : 400 Bad Request
+    UI --> C : Hiển thị lỗi, giữ nguyên giỏ hàng
+  else Dữ liệu hợp lệ
+    API -> DB : BEGIN transaction
+    API -> DB : Đọc món (giá, tồn kho)
+    API -> DB : Trừ tồn kho (UPDATE ... WHERE id = ? AND stock >= số lượng, version + 1)
+    alt Không đủ hàng (UPDATE ảnh hưởng 0 dòng)
+      API -> DB : ROLLBACK
+      API --> UI : 409 Conflict (hết hàng)
+      UI --> C : Báo hết hàng, giữ nguyên giỏ hàng
+    else Đủ hàng
+      API -> DB : Kiểm tra mã khuyến mãi (nếu có)
+      alt Mã khuyến mãi không hợp lệ hoặc đã hết hạn
+        API -> DB : ROLLBACK (hoàn lại tồn kho vừa trừ)
+        API --> UI : 400 Bad Request
+        UI --> C : Báo mã không hợp lệ, giữ nguyên giỏ hàng
+      else Mã hợp lệ hoặc không dùng mã
+        API -> DB : Lưu Order (PENDING) và OrderItem
+        API -> DB : COMMIT
+        API --> UI : 201 Created (mã đơn, tổng tiền)
+
+        note over API, DB
+          Tồn kho được giữ từ lúc tạo đơn. Đơn PAYMENT_FAILED được thử lại
+          trên cùng đơn nên vẫn giữ hàng. Hủy đơn (POST /orders/:id/cancel)
+          hoàn lại tồn kho.
+        end note
+
+        UI -> API : POST /payments (orderId, method, Idempotency-Key)
+        API -> DB : Tìm Payment theo Idempotency-Key
+        alt Key đã được xử lý
+          DB --> API : Payment của lần trước
+          API --> UI : Kết quả của lần trước (không thanh toán lại)
+          UI --> C : Hiển thị kết quả của lần trước
+        else Key mới
+          API -> DB : Đọc đơn hàng, kiểm tra chủ đơn và trạng thái
+          alt Đơn không tồn tại hoặc không thuộc về user
+            API --> UI : 404 Not Found
+            UI --> C : Báo không tìm thấy đơn hàng
+          else Đơn không ở trạng thái thanh toán được (ví dụ đã PAID, CANCELLED)
+            API --> UI : 409 Conflict
+            UI --> C : Báo đơn không thể thanh toán
+          else Đơn hợp lệ (PENDING hoặc PAYMENT_FAILED)
+            API -> PAY : Yêu cầu thanh toán (số tiền, phương thức)
+            alt Thanh toán thành công
+              PAY --> API : SUCCESS
+              API -> DB : BEGIN, lưu Payment, đơn sang PAID, cộng điểm thưởng, COMMIT
+              API --> UI : 200 OK (PAID)
+              UI --> C : Hiển thị mã đơn và trạng thái PAID
+            else Thanh toán thất bại
+              PAY --> API : FAILED
+              API -> DB : BEGIN, lưu Payment, đơn sang PAYMENT_FAILED, COMMIT
+              API --> UI : 402 Payment Required (PAYMENT_FAILED)
+              UI --> C : Báo lỗi thanh toán, giữ nguyên giỏ hàng để thử lại
+            end
+          end
+        end
+      end
+    end
+  end
+end
+@enduml
