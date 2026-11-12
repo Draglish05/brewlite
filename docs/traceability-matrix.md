@@ -36,7 +36,7 @@ Quy ước test:
 
 | Mã yêu cầu | Thiết kế | Code / cấu hình | Test / minh chứng |
 |---|---|---|---|
-| NFR-01 Phản hồi dưới 500ms | `architecture.md` | Toàn bộ API | Đo bằng tay với dữ liệu mẫu (xem mục "Minh chứng" bên dưới) |
+| NFR-01 Phản hồi dưới 500ms | `architecture.md` | Toàn bộ API | Đo trên production (mục "Minh chứng"): các API đọc đạt, đăng nhập sát ngưỡng |
 | NFR-02 Băm mật khẩu | ADR-004 | `auth.service.ts` (bcrypt) | UT `auth.service.spec.ts` |
 | NFR-03 JWT | ADR-004 | `jwt-auth.guard.ts` | INT (401 khi thiếu hoặc sai token) |
 | NFR-04 Validate đầu vào | `architecture.md` | DTO trong `auth/dto`, `orders/dto`, `payments/dto`; `ValidationPipe` trong `main.ts` | INT (400 khi dữ liệu sai) |
@@ -55,8 +55,38 @@ Quy ước test:
 
 - Web chưa có test tự động (FR-04, giao diện), chỉ kiểm tra thủ công. API có test đầy đủ.
 - FR-20 (barista) nằm ngoài MVP.
-- NFR-01 chưa có đo lường chính thức; cần ghi số liệu đo thực tế vào mục "Minh chứng".
+- NFR-01: `POST /auth/login` có thời gian trung vị khoảng 500ms trên production, sát ngưỡng (chi tiết ở mục "Minh chứng").
+- API chạy trên gói miễn phí nên "ngủ" sau 15 phút không có truy cập, lần gọi đầu tiên sau đó mất khoảng 1 phút.
 
 ## Minh chứng
 
-_Điền sau khi đo và triển khai: thời gian phản hồi API, URL production, link lần chạy CD thành công._
+### Địa chỉ production
+
+- Web: https://brewlite-nine.vercel.app
+- API: https://brewlite-api-g7xb.onrender.com (kiểm tra sống: `/health`)
+
+### Thời gian phản hồi API (NFR-01)
+
+Đo ngày 11/11/2026 trên API production, từ máy của người phát triển (Việt Nam, máy chủ ở Singapore). Mỗi API đo 30 lần sau 3 lần chạy làm nóng, riêng đăng nhập đo 15 lần. Thời gian kết nối TCP thuần tới máy chủ trung bình 88ms (đã nằm trong các số dưới).
+
+| API | Trung vị | p95 | Lớn nhất | Số lần dưới 500ms |
+|---|---|---|---|---|
+| `GET /health` | 184ms | 211ms | 285ms | 30/30 |
+| `GET /products` | 167ms | 205ms | 226ms | 30/30 |
+| `GET /products/3` | 174ms | 208ms | 229ms | 30/30 |
+| `GET /auth/me` (có JWT) | 166ms | 209ms | 296ms | 30/30 |
+| `GET /orders/me` (có JWT) | 187ms | 204ms | 207ms | 30/30 |
+| `POST /auth/login` | 500ms | 551ms | 575ms | 7/15 |
+
+Kết luận: các API đọc đạt yêu cầu với biên độ lớn (gấp khoảng hai lần dưới ngưỡng). `POST /auth/login` ở mức sát ngưỡng và vượt ở một nửa số lần đo, vì mỗi lần đăng nhập phải so khớp mật khẩu bằng bcrypt (cố ý chậm để chống dò mật khẩu, yêu cầu NFR-02) trên CPU dùng chung của gói miễn phí. Nhóm chấp nhận đánh đổi này, ưu tiên bảo mật hơn tốc độ cho riêng thao tác đăng nhập.
+
+### Triển khai và phát hành
+
+- Lần chạy CD thành công: https://github.com/Draglish05/brewlite/actions/runs/42983667550 (thẻ `v1.0.2`, đủ 4 job: kiểm tra chất lượng, build image, triển khai và smoke test, tạo release).
+- Bản phát hành: https://github.com/Draglish05/brewlite/releases/tag/v1.0.2
+- Image trên registry: `ghcr.io/draglish05/brewlite-api` với các tag `v0.1.0`, `v1.0.0`, `v1.0.1`, `v1.0.2` và tag theo commit SHA.
+- Các lần chạy CD thất bại và đã dừng đúng thiết kế: thẻ `v0.1.0` (chưa có secret, lần chạy thử đầu tiên), `v1.0.0` và `v1.0.1` (lỗi cấu hình bước Vercel, xem `docs/sprint-review-retrospective.md`).
+
+### CI
+
+- Mọi pull request chạy lint, test, build, và không merge được nếu CI đỏ (xem pull request #3: một lần CI phát hiện test sai rồi xanh trở lại sau khi sửa).
