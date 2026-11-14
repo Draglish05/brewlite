@@ -20,7 +20,7 @@ Giữa Sprint 2 và Sprint 3 có khoảng nghỉ 13 ngày (27/10 đến 09/11) k
 
 Một hệ thống chạy được trên môi trường production, dùng được từ đầu đến cuối:
 
-- Web: https://brewlite-nine.vercel.app
+- Web: https://brewlitetat.vercel.app
 - API: https://brewlite-api-g7xb.onrender.com (kiểm tra sống: `/health`)
 - Mã nguồn: https://github.com/Draglish05/brewlite, bản phát hành `v1.0.2`.
 
