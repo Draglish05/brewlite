@@ -62,7 +62,7 @@ Quy ước test:
 
 ### Địa chỉ production
 
-- Web: https://brewlite-nine.vercel.app
+- Web: https://brewlitetat.vercel.app
 - API: https://brewlite-api-g7xb.onrender.com (kiểm tra sống: `/health`)
 
 ### Thời gian phản hồi API (NFR-01)
