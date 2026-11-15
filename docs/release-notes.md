@@ -7,7 +7,7 @@ Lịch sử phát hành: các thẻ `v1.0.0` và `v1.0.1` là những lần ch�
 ## Địa chỉ
 
 - Web: https://brewlitetat.vercel.app
-- API: https://brewlite-api-g7xb.onrender.com (kiểm tra sống: `/health`)
+- API: https://brewlite-api-g7xb.onrender.com/health (kiểm tra sống)
 
 Lưu ý: API chạy trên gói miễn phí nên ngủ sau khoảng 15 phút không có truy cập. Lần mở đầu tiên có thể mất khoảng 1 phút.
 

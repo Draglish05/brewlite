@@ -21,19 +21,8 @@ Giữa Sprint 2 và Sprint 3 có khoảng nghỉ 13 ngày (27/10 đến 09/11) k
 Một hệ thống chạy được trên môi trường production, dùng được từ đầu đến cuối:
 
 - Web: https://brewlitetat.vercel.app
-- API: https://brewlite-api-g7xb.onrender.com (kiểm tra sống: `/health`)
-- Mã nguồn: https://github.com/Draglish05/brewlite, bản phát hành `v1.0.2`.
-
-### Kịch bản demo (luồng end-to-end)
-
-1. Mở trang web, xem menu 6 đồ uống (có trạng thái đang tải khi API vừa thức dậy).
-2. Bấm một món, chọn size L và topping Kem, giá cập nhật theo lựa chọn, thêm vào giỏ hai lần.
-3. Mở giỏ hàng, sửa số lượng, thấy tổng tiền tự tính và số lượng trên biểu tượng giỏ.
-4. Bấm Thanh toán khi chưa đăng nhập: được yêu cầu đăng nhập. Đăng ký tài khoản mới, quay lại giỏ hàng (giỏ vẫn còn).
-5. Ở trang thanh toán, nhập mã `BREW10` (giảm 10%), chọn Ví điện tử, bấm Xác nhận trả.
-6. Màn hình xác nhận hiện mã đơn, trạng thái PAID, giảm giá và tổng tiền. Mở lịch sử đơn thấy đơn vừa tạo và điểm tích lũy.
-7. Nhánh lỗi: đặt đơn khác, tick "Giả lập thanh toán lỗi", trạng thái đơn là thanh toán lỗi và giỏ hàng được giữ; bỏ tick rồi bấm Thử thanh toán lại để thanh toán thành công.
-8. Hủy một đơn và cho thấy tồn kho được hoàn lại.
+- API: https://brewlite-api-g7xb.onrender.com/health (kiểm tra sống)
+- Mã nguồn: https://github.com/Draglish05/brewlite, bản phát hành `v1.0.4`.
 
 ### Kết quả kiểm thử
 
@@ -121,4 +110,3 @@ Hạng mục còn lại cuối cùng là đưa nốt tài liệu thiết kế (m
 
 ## 6. Phản hồi từ giảng viên (khách hàng)
 
-_Ghi lại sau buổi Sprint Review và demo._
