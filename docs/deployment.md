@@ -19,7 +19,7 @@ Không có bí mật nào nằm trong repository hay log CI. Giá trị thật c
 | `DATABASE_URL` | Internal Database URL của Render PostgreSQL |
 | `JWT_SECRET` | Chuỗi ngẫu nhiên dài (khác bản trên máy local) |
 | `PORT` | `4000` |
-| `WEB_URL` | URL web trên Vercel (để API cho phép CORS), ví dụ `https://brewlite.vercel.app` |
+| `WEB_URL` | URL web trên Vercel (để API cho phép CORS), ví dụ `https://brewlitetat.vercel.app` |
 
 ### Vercel (dự án web)
 

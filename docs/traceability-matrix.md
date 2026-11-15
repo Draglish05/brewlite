@@ -84,7 +84,7 @@ Kết luận: các API đọc đạt yêu cầu với biên độ lớn (gấp k
 
 - Lần chạy CD thành công: https://github.com/Draglish05/brewlite/actions/runs/42983667550 (thẻ `v1.0.2`, đủ 4 job: kiểm tra chất lượng, build image, triển khai và smoke test, tạo release).
 - Bản phát hành: https://github.com/Draglish05/brewlite/releases/tag/v1.0.2
-- Image trên registry: `ghcr.io/draglish05/brewlite-api` với các tag `v0.1.0`, `v1.0.0`, `v1.0.1`, `v1.0.2` và tag theo commit SHA.
+- Image trên registry: `ghcr.io/draglish05/brewlite-api` với các tag `v0.1.0`, `v1.0.0`, `v1.0.1`, `v1.0.2`, `v1.0.3`, `v1.0.4` và tag theo commit SHA.
 - Các lần chạy CD thất bại và đã dừng đúng thiết kế: thẻ `v0.1.0` (chưa có secret, lần chạy thử đầu tiên), `v1.0.0` và `v1.0.1` (lỗi cấu hình bước Vercel, xem `docs/sprint-review-retrospective.md`).
 
 ### CI
