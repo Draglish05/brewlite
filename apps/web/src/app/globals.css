@@ -1,11 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #faf7f2;
   --foreground: #171717;
+  --olive: #59634a;
+  --terracotta: #bc7053;
 }
 
 @theme inline {
+  --color-olive: var(--olive);
+  --color-terracotta: var(--terracotta);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -16,6 +20,28 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+  }
+}
+
+/* Thẻ món hiện dần khi vào trang hoặc đổi danh mục (độ trễ đặt trong style của từng thẻ) */
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.card-in {
+  animation: card-in 0.35s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-in {
+    animation: none;
   }
 }
 

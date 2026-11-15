@@ -14,21 +14,23 @@ async function ProductDetail({ params }: { params: Params }) {
   }
 
   return (
-    <>
-      <img
-        src={product.imageUrl}
-        alt={product.name}
-        className="mb-4 aspect-square w-full rounded object-cover"
-      />
-      <h1 className="text-2xl font-bold">{product.name}</h1>
+    <div className="grid gap-8 md:grid-cols-2">
+      <div>
+        <img
+          src={product.imageUrl}
+          alt={product.name}
+          className="aspect-square w-full rounded-xl object-cover"
+        />
+        <h1 className="mt-4 text-2xl font-bold">{product.name}</h1>
+      </div>
       <ProductOptions product={product} />
-    </>
+    </div>
   );
 }
 
 export default function ProductPage({ params }: { params: Params }) {
   return (
-    <main className="mx-auto max-w-sm p-4">
+    <main className="mx-auto w-full max-w-4xl p-4">
       <Suspense fallback={<p>Đang tải sản phẩm...</p>}>
         <ProductDetail params={params} />
       </Suspense>
