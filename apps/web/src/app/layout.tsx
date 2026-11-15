@@ -29,19 +29,19 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <header className="flex items-center justify-between border-b border-foreground/10 px-10 py-9 sm:px-5 sm:py-9">
+        <header className="flex items-center justify-between border-b border-foreground/10 px-4 py-9 sm:px-5 sm:py-9">
           <div className="flex items-center">
             <Suspense fallback={null}>
               <MenuToggle />
             </Suspense>
             <Link
               href="/"
-              className="rounded-md bg-foreground px-2.5 py-1.5 text-lg font-black uppercase leading-none tracking-wide text-background sm:px-3.5 sm:py-2 sm:text-2xl"
+              className="rounded-md bg-olive px-2.5 py-1.5 text-lg font-black uppercase leading-none tracking-wide text-white sm:px-3.5 sm:py-2 sm:text-2xl"
             >
               BrewLite
             </Link>
           </div>
-          <div className="flex items-center gap-3 whitespace-nowrap text-sm sm:gap-4 sm:text-base">
+          <div className="flex items-center gap-3 whitespace-nowrap text-sm font-semibold sm:gap-4 sm:text-base">
             <AuthLink />
             <CartLink />
           </div>

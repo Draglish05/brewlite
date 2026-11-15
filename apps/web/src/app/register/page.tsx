@@ -39,7 +39,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="p-4">
+    <main className="mx-auto max-w-[400px] p-4">
       <h1 className="mb-4 text-2xl font-bold">Đăng ký</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <input
@@ -47,7 +47,7 @@ export default function RegisterPage() {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="rounded border p-2"
+          className="rounded border p-2 focus:outline-none focus:ring-2 focus:ring-terracotta"
           required
         />
         <input
@@ -55,17 +55,17 @@ export default function RegisterPage() {
           placeholder="Mật khẩu (tối thiểu 6 ký tự)"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="rounded border p-2"
+          className="rounded border p-2 focus:outline-none focus:ring-2 focus:ring-terracotta"
           required
         />
         {error !== '' && <p className="text-red-600">{error}</p>}
-        <button type="submit" className="rounded bg-black px-4 py-2 text-white">
+        <button type="submit" className="rounded bg-olive px-4 py-2 text-white transition-colors hover:bg-terracotta">
           Đăng ký
         </button>
       </form>
-      <p className="mt-4">
+      <p className="mt-10">
         Đã có tài khoản?{' '}
-        <Link href="/login" className="underline">
+        <Link href="/login" className="text-terracotta underline">
           Đăng nhập
         </Link>
       </p>

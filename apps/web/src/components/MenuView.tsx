@@ -61,7 +61,7 @@ export default function MenuView({ products }: { products: Product[] }) {
                 onClick={() => chooseCategory(item.key)}
                 className={`mb-1 flex w-full items-center justify-between rounded-lg px-3 py-2 text-left transition-colors ${
                   category === item.key
-                    ? 'bg-foreground/10 font-medium'
+                    ? 'bg-olive/15 font-medium'
                     : 'hover:bg-foreground/5'
                 }`}
               >
@@ -79,7 +79,7 @@ export default function MenuView({ products }: { products: Product[] }) {
               <li key={product.id} className="card-in" style={{ animationDelay: `${index * 30}ms` }}>
                 <Link
                   href={`/products/${product.id}`}
-                  className="block overflow-hidden rounded-xl bg-background shadow-md ring-1 ring-foreground/10 transition duration-200 hover:-translate-y-1 hover:shadow-xl focus-visible:ring-2 focus-visible:ring-foreground"
+                  className="group block overflow-hidden rounded-xl bg-background shadow-md ring-1 ring-foreground/10 transition duration-200 hover:-translate-y-1 hover:shadow-xl hover:ring-terracotta focus-visible:ring-2 focus-visible:ring-terracotta"
                 >
                   <img
                     src={product.imageUrl}
@@ -94,7 +94,7 @@ export default function MenuView({ products }: { products: Product[] }) {
                       </span>
                       <span
                         aria-hidden="true"
-                        className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-lg leading-none text-background"
+                        className="flex h-8 w-8 items-center justify-center rounded-full bg-olive text-lg leading-none text-white transition-colors group-hover:bg-terracotta"
                       >
                         +
                       </span>

@@ -1,11 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #faf7f2;
   --foreground: #171717;
+  --olive: #59634a;
+  --terracotta: #bc7053;
 }
 
 @theme inline {
+  --color-olive: var(--olive);
+  --color-terracotta: var(--terracotta);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
